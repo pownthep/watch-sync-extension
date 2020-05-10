@@ -1,7 +1,7 @@
 {
-  "name": "Getting Started Example",
+  "name": "Watch Sync",
   "version": "1.0",
-  "description": "Build an Extension!",
+  "description": "Play, play and sync your media across tabs and windows",
   "permissions": [
     "activeTab",
     "declarativeContent",
