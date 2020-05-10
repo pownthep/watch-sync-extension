@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+      <script src="socket.js"></script>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: none;
+      border-radius: 5px;
+    }
+    .slider {
+      width: 300px;
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+
+    button {
+      background-color: white;
+      border: none;
+      padding: 2px;
+      margin: 5px;
+    }
+    #seconds {
+      width: 50px;
+      border-radius: 2px;
+    }
+
+    .material-icons {
+      color: grey;
+      cursor: pointer;
+      transition: color 300ms ease-in-out;
+    }
+
+    .material-icons:hover {
+      color: black;
+    }
+
+    .green {
+      color: green;
+    }
+  </style>
+</head>
+
+<body>
+  <input type="number" name="" id="seconds">
+  <span id="play" class="material-icons">
+    play_arrow
+    </span>
+  <input class="slider" type="range" name="" id="time" min="0" max="" value="0">
+  <span  id="pause" class="material-icons">
+    pause
+    </span>
+   <span id="link" class="material-icons">
+      cast_connected
+      </span>
+  <script src="popup.js"></script>
+</body>
+
+</html>
