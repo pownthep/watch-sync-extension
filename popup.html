@@ -6,7 +6,7 @@
       rel="stylesheet">
       <script src="socket.js"></script>
   <style>
-    body {
+    .center {
       display: flex;
       justify-content: center;
       align-items: center;
@@ -43,21 +43,29 @@
     .green {
       color: green;
     }
+
+    #timer {
+      font-weight: bold;
+      text-align: center;
+    }
   </style>
 </head>
 
 <body>
-  <input type="number" name="" id="seconds">
-  <span id="play" class="material-icons">
-    play_arrow
-    </span>
-  <input class="slider" type="range" name="" id="time" min="0" max="" value="0">
-  <span  id="pause" class="material-icons">
-    pause
-    </span>
-   <span id="link" class="material-icons">
-      cast_connected
+  <!-- <p id="timer">0</p>  -->
+  <div class="center">
+    <input type="number" name="" id="seconds" hidden>
+    <span id="play" class="material-icons">
+      play_arrow
       </span>
+    <input class="slider" type="range" name="" id="time" min="0" max="" value="0">
+    <span  id="pause" class="material-icons">
+      pause
+      </span>
+     <span id="link" class="material-icons">
+        cast_connected
+        </span>
+  </div>
   <script src="popup.js"></script>
 </body>
 

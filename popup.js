@@ -4,10 +4,11 @@
 
 'use strict';
 
-let link = document.getElementById('link');
-let play = document.getElementById('play');
-let pause = document.getElementById('pause');
+let linkBtn = document.getElementById('link');
+let playBtn = document.getElementById('play');
+let pauseBtn = document.getElementById('pause');
 let time = document.getElementById('time');
+//let timer = document.getElementById('timer');
 let iframes;
 let tabid = null;
 let seconds = document.getElementById('seconds');
@@ -26,47 +27,25 @@ const playScript =
 
 const socket = io('https://socket-watch-express.herokuapp.com');
 
-chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-  tabid = tabs[0].id;
-  localStorage[tabid] = 1;
-  console.log(localStorage[tabid]);
-  chrome.tabs.executeScript(
-    tabs[0].id,
-    {
-      "file": "inject.js"
-    });
+socket.on('seek cmd', function (msg) {
+  updateTime(msg);
 });
 
-link.onclick = function () {
-  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    tabid = tabs[0].id;
-    localStorage[tabid] = 1;
-    console.log(localStorage[tabid]);
-    chrome.tabs.executeScript(
-      tabs[0].id,
-      {
-        "file": "inject.js",
-        "allFrames": true
-      });
-  });
-  link.style.color = 'green'; 
-}
+socket.on('vlc cmd', function (msg) {
+  //console.log(msg);
+  switch (msg) {
+    case 'play':
+      play();
+      break;
+    case 'pause':
+      pause();
+      break;
+    default:
+      break;
+  }
+});
 
-seconds.onchange = () => localStorage['sync-time'] = seconds.value;
-
-pause.onclick = function () {
-  chrome.windows.getAll({ populate: true }, (windows) => {
-    windows.forEach((window) => {
-      window.tabs.forEach((tab) => {
-        chrome.tabs.executeScript(
-          tab.id,
-          { code: pauseScript });
-      });
-    });
-  });
-}
-
-play.onclick = function () {
+function play() {
   chrome.windows.getAll({ populate: true }, (windows) => {
     windows.forEach((window) => {
       window.tabs.forEach((tab) => {
@@ -78,29 +57,91 @@ play.onclick = function () {
   });
 }
 
-chrome.runtime.onMessage.addListener(
-  function (request, sender, sendResponse) {
-    if (request.name === 'time') {
-      time.value = request.value;
-      time.max = request.max;
-    }
-  }
-);
-
-time.oninput = function updateTime() {
-  pause.click();
-  let updateTime =
-`
-if(document.querySelector("iframe") && window.location.href.includes('crunchyroll')) document.querySelector("iframe").contentWindow.postMessage({name: "time", value: ${this.value-seconds.value}}, "*");
-if(document.querySelector("video") && window.location.href.includes('youtube')) document.querySelector("video").currentTime = ${this.value};
-else if (document.querySelector("video")) document.querySelector("video").currentTime = ${this.value-seconds.value};
-`;
+function pause() {
   chrome.windows.getAll({ populate: true }, (windows) => {
     windows.forEach((window) => {
       window.tabs.forEach((tab) => {
         chrome.tabs.executeScript(
           tab.id,
-          { code: updateTime });
+          { code: pauseScript });
+      });
+    });
+  });
+}
+
+chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+  tabid = tabs[0].id;
+  localStorage[tabid] = 1;
+  console.log(localStorage[tabid]);
+  chrome.tabs.executeScript(
+    tabs[0].id,
+    {
+      "file": "inject.js"
+    });
+});
+
+
+
+linkBtn.onclick = function () {
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    tabid = tabs[0].id;
+    localStorage[tabid] = 1;
+    console.log(localStorage[tabid]);
+    chrome.tabs.executeScript(
+      tabs[0].id,
+      {
+        "file": "inject.js",
+        "allFrames": true
+      });
+  });
+  link.style.color = 'green';
+}
+
+seconds.onchange = () => localStorage['sync-time'] = seconds.value;
+
+pauseBtn.onclick = function () {
+  socket.emit('vlc cmd', 'pause');
+}
+
+playBtn.onclick = function () {
+  socket.emit('vlc cmd', 'play');
+}
+
+chrome.runtime.onMessage.addListener(
+  function (request, sender, sendResponse) {
+    if (request.name === 'time') {
+      time.value = request.value;
+      time.max = request.max;
+      //timer.innerText = request.value;
+    }
+  }
+);
+
+
+
+time.oninput = function () {
+  console.log(this.value);
+  socket.emit('seek cmd', this.value);
+}
+
+
+function updateTime(time) {
+  console.log(time);
+  pauseBtn.click();
+//   let updateTime =
+//     `
+// if(document.querySelector("iframe") && window.location.href.includes('crunchyroll')) document.querySelector("iframe").contentWindow.postMessage({name: "time", value: ${this.value - seconds.value}}, "*");
+// if(document.querySelector("video") && window.location.href.includes('youtube')) document.querySelector("video").currentTime = ${this.value};
+// else if (document.querySelector("video")) document.querySelector("video").currentTime = ${this.value - seconds.value};
+// `;
+
+  let seekCode = `if (document.querySelector("video")) document.querySelector("video").currentTime = ${time};`;
+  chrome.windows.getAll({ populate: true }, (windows) => {
+    windows.forEach((window) => {
+      window.tabs.forEach((tab) => {
+        chrome.tabs.executeScript(
+          tab.id,
+          { code: seekCode });
       });
     });
   });
